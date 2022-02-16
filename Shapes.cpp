@@ -53,7 +53,7 @@ public:
     CPolyline(const CPolyline &other)
         : number_points_(other.number_points_), points_(new CPoint[other.number_points_])
     {
-        std::memcpy(other.points_, points_, sizeof(CPoint) * number_points_);
+        memcpy(points_, other.points_, sizeof(CPoint) * number_points_);
     }
     CPolyline &operator=(const CPolyline &other)
     {
@@ -62,7 +62,7 @@ public:
         number_points_ = other.number_points_;
         delete[] points_;
         points_ = new CPoint[number_points_];
-        std::memcpy(other.points_, points_, sizeof(CPoint) * number_points_);
+        memcpy(points_, other.points_, sizeof(CPoint) * number_points_);
         return *this;
     }
     virtual ~CPolyline()
@@ -125,7 +125,7 @@ class CPolygon : public CClosedPolyline
 public:
     explicit CPolygon() : CClosedPolyline() {}
     explicit CPolygon(unsigned number_points, CPoint *points)
-        : CClosedPolyline(number_points, points) {} //checking for self-intersections
+        : CClosedPolyline(number_points, points) {} // checking for self-intersections
     CPolygon(const CPolygon &other)
         : CClosedPolyline(other) {}
     CPolygon &operator=(const CPolygon &other)
@@ -233,8 +233,27 @@ class CTrapezoid : CPolygon
     {
         bool is_parallel = false, not_parallel = false;
         double k1, k2, k3, k4;
-        if ()
-        if (number_points != 4 or !is_parallel or !not_parallel)
+        k1 = (points[0].Y() - points[1].Y()) / (points[0].X() - points[1].X());
+        k2 = (points[1].Y() - points[2].Y()) / (points[1].X() - points[2].X());
+        k3 = (points[2].Y() - points[3].Y()) / (points[2].X() - points[3].X());
+        k4 = (points[0].Y() - points[3].Y()) / (points[0].X() - points[3].X());
+        if (std::fabs(k1 - k3) < 0.000001)
+        {
+            is_parallel = true;
+        }
+        else
+        {
+            not_parallel = true;
+        }
+        if (std::fabs(k2 - k4) < 0.000001)
+        {
+            is_parallel = true;
+        }
+        else
+        {
+            not_parallel = true;
+        }
+        if (number_points != 4 || !is_parallel || !not_parallel)
         {
             std::cout << "It is not a triangle!";
         }
