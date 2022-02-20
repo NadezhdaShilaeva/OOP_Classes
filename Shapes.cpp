@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include <cmath>
 
 #define PI 3.14159265
@@ -45,9 +44,13 @@ public:
     explicit CPolyline(unsigned number_points, CPoint *points)
         : number_points_(number_points), points_(new CPoint[number_points])
     {
-        for (int i = 0; i < number_points; ++i)
+        if (sizeof(points) / sizeof(CPoint) != number_points)
         {
-            points_[i] = points[i];
+            std::cout << "Error! Different number of points!" << std::endl;
+        }
+        else
+        {
+            memcpy(points_, points, sizeof(CPoint) * number_points_);
         }
     }
     CPolyline(const CPolyline &other)
@@ -270,6 +273,8 @@ class CTrapezoid : CPolygon
 
 int main()
 {
+    double a = 1.6565695, b = 2.56;
+    std::cout << a/b << std::endl;
     CPoint p1(1, 2);
     std::cout << p1.radius() << std::endl;
     return 0;
