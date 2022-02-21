@@ -41,12 +41,12 @@ class CPolyline
 public:
     explicit CPolyline()
         : number_points_(0), points_(new CPoint[number_points_]) {}
-    explicit CPolyline(unsigned number_points, CPoint *points)
+    explicit CPolyline(size_t number_points, CPoint *points)
         : number_points_(number_points), points_(new CPoint[number_points])
     {
-        if (sizeof(points) / sizeof(CPoint) != number_points)
+        if (sizeof(points) != number_points * sizeof(CPoint))
         {
-            std::cout << "Error! Different number of points!" << std::endl;
+            std::cerr << "Error! Different number of points!" << std::endl;
         }
         else
         {
@@ -72,11 +72,11 @@ public:
     {
         delete[] points_;
     }
-    virtual unsigned GetNumberPoints() const
+    virtual size_t GetNumberPoints() const
     {
         return number_points_;
     }
-    virtual CPoint GetPoint(unsigned i) const
+    virtual CPoint GetPoint(size_t i) const
     {
         return points_[i];
     }
@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    unsigned number_points_;
+    size_t number_points_;
     CPoint *points_;
 };
 
@@ -99,7 +99,7 @@ class CClosedPolyline : public CPolyline
 {
 public:
     explicit CClosedPolyline() : CPolyline() {}
-    explicit CClosedPolyline(unsigned number_points, CPoint *points)
+    explicit CClosedPolyline(size_t number_points, CPoint *points)
         : CPolyline(number_points, points) {}
     CClosedPolyline(const CClosedPolyline &other)
         : CPolyline(other) {}
@@ -127,7 +127,7 @@ class CPolygon : public CClosedPolyline
 {
 public:
     explicit CPolygon() : CClosedPolyline() {}
-    explicit CPolygon(unsigned number_points, CPoint *points)
+    explicit CPolygon(size_t number_points, CPoint *points)
         : CClosedPolyline(number_points, points) {} // checking for self-intersections
     CPolygon(const CPolygon &other)
         : CClosedPolyline(other) {}
@@ -161,7 +161,7 @@ public:
 class CRegularPolygon : CPolygon
 {
     explicit CRegularPolygon() : CPolygon(), side_(0) {}
-    explicit CRegularPolygon(unsigned number_points, CPoint *points)
+    explicit CRegularPolygon(size_t number_points, CPoint *points)
         : CPolygon(number_points, points), side_(0)
     {
         if (number_points != 0)
@@ -178,7 +178,7 @@ class CRegularPolygon : CPolygon
                 }
             }
             if (!is_regular)
-                std::cout << "Your polygon is not regular!";
+                std::cerr << "Your polygon is not regular!";
         }
     }
     CRegularPolygon(const CRegularPolygon &other)
@@ -210,12 +210,12 @@ private:
 class CTriangle : CPolygon
 {
     explicit CTriangle() : CPolygon() {}
-    explicit CTriangle(unsigned number_points, CPoint *points)
+    explicit CTriangle(size_t number_points, CPoint *points)
         : CPolygon(number_points, points)
     {
         if (number_points != 3)
         {
-            std::cout << "It is not a triangle!";
+            std::cerr << "It is not a triangle!";
         }
     }
     CTriangle(const CTriangle &other)
@@ -231,7 +231,7 @@ class CTriangle : CPolygon
 class CTrapezoid : CPolygon
 {
     explicit CTrapezoid() : CPolygon() {}
-    explicit CTrapezoid(unsigned number_points, CPoint *points)
+    explicit CTrapezoid(size_t number_points, CPoint *points)
         : CPolygon(number_points, points)
     {
         bool is_parallel = false, not_parallel = false;
@@ -258,7 +258,7 @@ class CTrapezoid : CPolygon
         }
         if (number_points != 4 || !is_parallel || !not_parallel)
         {
-            std::cout << "It is not a triangle!";
+            std::cerr << "It is not a triangle!";
         }
     }
     CTrapezoid(const CTrapezoid &other)
