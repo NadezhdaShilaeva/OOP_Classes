@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <stdio.h>
 
 class CPolynomial
 {
@@ -236,17 +237,29 @@ CPolynomial &operator>>(std::istream &stream, CPolynomial &polynomial)
     double coeff;
     stream >> coeff;
     char symbol = stream.get();
-    if(symbol == '\n')
+    if (symbol == '\n')
     {
         polynomial.degree_ = 0;
         delete[] polynomial.coeff_;
         polynomial.coeff_ = new double[1];
         polynomial.coeff_[0] = coeff;
     }
-    while(symbol!='\n')
+    while (symbol != '\n')
     {
-        while(symbol)
-        symbol = stream.get();
+        stream.get();
+        stream.get();
+        stream >> polynomial.degree_;
+        delete[] polynomial.coeff_;
+        polynomial.coeff_ = new double[polynomial.degree_ + 1];
+        polynomial.coeff_[polynomial.degree_] = coeff;
+        for (int i = 0; i < polynomial.degree_; ++i)
+        {
+            polynomial.coeff_[i] = 0;
+        }
+        while (symbol != '\n')
+        {
+            symbol = stream.get();
+        }
     }
     return polynomial;
 }
