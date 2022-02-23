@@ -13,7 +13,9 @@ public:
     CPoint &operator=(const CPoint &other)
     {
         if (&other == this)
+        {
             return *this;
+        }
         x_ = other.x_;
         y_ = other.y_;
     }
@@ -26,7 +28,7 @@ public:
     {
         return y_;
     }
-    double radius() const
+    double Radius() const
     {
         return std::sqrt(x_ * x_ + y_ * y_);
     }
@@ -44,14 +46,7 @@ public:
     explicit CPolyline(size_t number_points, CPoint *points)
         : number_points_(number_points), points_(new CPoint[number_points])
     {
-        if (sizeof(points) != number_points * sizeof(CPoint))
-        {
-            std::cerr << "Error! Different number of points!" << std::endl;
-        }
-        else
-        {
-            memcpy(points_, points, sizeof(CPoint) * number_points_);
-        }
+        memcpy(points_, points, sizeof(CPoint) * number_points_);
     }
     CPolyline(const CPolyline &other)
         : number_points_(other.number_points_), points_(new CPoint[other.number_points_])
@@ -61,7 +56,9 @@ public:
     CPolyline &operator=(const CPolyline &other)
     {
         if (&other == this)
+        {
             return *this;
+        }
         number_points_ = other.number_points_;
         delete[] points_;
         points_ = new CPoint[number_points_];
@@ -72,22 +69,22 @@ public:
     {
         delete[] points_;
     }
-    virtual size_t GetNumberPoints() const
+    virtual size_t NumberPoints() const
     {
         return number_points_;
     }
-    virtual CPoint GetPoint(size_t i) const
+    virtual CPoint Point(size_t i) const
     {
         return points_[i];
     }
     virtual double Length() const
     {
-        double length_ = 0;
-        for (int i = 1; i < number_points_; ++i)
+        double length = 0;
+        for (size_t i = 1; i < number_points_; ++i)
         {
-            length_ += sqrt(pow((points_[i - 1].X() - points_[i].X()), 2) + (pow((points_[i - 1].Y() - points_[i].Y()), 2)));
+            length += sqrt(pow((points_[i - 1].X() - points_[i].X()), 2) + (pow((points_[i - 1].Y() - points_[i].Y()), 2)));
         }
-        return length_;
+        return length;
     }
 
 private:
@@ -111,54 +108,70 @@ public:
     ~CClosedPolyline() {}
     double Length() const
     {
-        if (this->GetNumberPoints() < 2)
+        size_t number_points = this->NumberPoints();
+        if (number_points < 2)
             return 0;
         double length_ = 0;
-        for (int i = 1; i < this->GetNumberPoints(); ++i)
+        for (size_t i = 1; i < number_points; ++i)
         {
-            length_ += std::sqrt(std::pow(this->GetPoint(i - 1).X() - this->GetPoint(i).X(), 2) + std::pow(this->GetPoint(i - 1).Y() - this->GetPoint(i).Y(), 2));
+            CPoint p = this->Point(i);
+            CPoint p_last = this->Point(i - 1);
+            length_ += std::sqrt(std::pow(p_last.X() - p.X(), 2) + std::pow(p_last.Y() - p.Y(), 2));
         }
-        length_ += std::sqrt(std::pow(this->GetPoint(this->GetNumberPoints() - 1).X() - this->GetPoint(0).X(), 2) + std::pow(this->GetPoint(this->GetNumberPoints() - 1).Y() - this->GetPoint(0).Y(), 2));
+        CPoint p = this->Point(0);
+        CPoint p_last = this->Point(number_points - 1);
+        length_ += std::sqrt(std::pow(p_last.X() - p.X(), 2) + std::pow(p_last.Y() - p.Y(), 2));
         return length_;
     }
 };
 
-class CPolygon : public CClosedPolyline
+class CPolygon
 {
 public:
-    explicit CPolygon() : CClosedPolyline() {}
+    explicit CPolygon() : outline_() {}
     explicit CPolygon(size_t number_points, CPoint *points)
-        : CClosedPolyline(number_points, points) {} // checking for self-intersections
+        : outline_(number_points, points) {} // checking for self-intersections
     CPolygon(const CPolygon &other)
-        : CClosedPolyline(other) {}
+        : outline_(other.outline_) {}
     CPolygon &operator=(const CPolygon &other)
     {
-        CPolyline::operator=(other);
+        if (this == &other)
+        {
+            return *this;
+        }
+        outline_ = other.outline_;
         return *this;
     }
     ~CPolygon() {}
     virtual double Perimeter() const
     {
-        return this->Length();
+        return outline_.Length();
     }
     virtual double Square() const
     {
         double square = 0;
-        for (int i = 0; i < this->GetNumberPoints() - 1; ++i)
+        for (size_t i = 0; i < outline_.NumberPoints() - 1; ++i)
         {
-            CPoint p = this->GetPoint(i);
-            CPoint p_next = this->GetPoint(i + 1);
-            square += p.X() * p_next.Y() - p.Y() * p_next.X();
+            CPoint p = outline_.Point(i);
+            CPoint p_next = outline_.Point(i + 1);
+            square += (p.X() + p_next.X()) * (p.Y() - p_next.Y());
         }
-        CPoint p_end = this->GetPoint(this->GetNumberPoints() - 1);
-        CPoint p_start = this->GetPoint(0);
-        square += p_end.X() * p_start.Y() - p_end.Y() * p_start.X();
+        CPoint p_end = outline_.Point(outline_.NumberPoints() - 1);
+        CPoint p_start = outline_.Point(0);
+        square += (p_end.X() + p_start.X()) * (p_end.Y() - p_start.Y());
         square = std::fabs(square * 0.5);
         return square;
     }
+    size_t NumberPoints() const
+    {
+        return outline_.NumberPoints();
+    }
+
+private:
+    CClosedPolyline outline_;
 };
 
-class CRegularPolygon : CPolygon
+class CRegularPolygon : public CPolygon
 {
     explicit CRegularPolygon() : CPolygon(), side_(0) {}
     explicit CRegularPolygon(size_t number_points, CPoint *points)
@@ -185,21 +198,23 @@ class CRegularPolygon : CPolygon
         : CPolygon(other), side_(other.side_) {}
     CRegularPolygon &operator=(const CRegularPolygon &other)
     {
-        CPolyline::operator=(other);
         if (&other == this)
+        {
             return *this;
-        this->side_ = other.side_;
+        }
+        CPolygon::operator=(other);
+        side_ = other.side_;
         return *this;
     }
     ~CRegularPolygon() {}
     double Perimeter() const
     {
-        double perimeter = this->GetNumberPoints() * side_;
+        double perimeter = this->NumberPoints() * side_;
         return perimeter;
     }
     double Square() const
     {
-        double square = (this->GetNumberPoints() * side_ * side_) / (4 * std::tan(PI / this->GetNumberPoints()));
+        double square = (this->NumberPoints() * side_ * side_) / (4 * std::tan(PI / this->NumberPoints()));
         return square;
     }
 
@@ -207,7 +222,7 @@ private:
     double side_;
 };
 
-class CTriangle : CPolygon
+class CTriangle : public CPolygon
 {
     explicit CTriangle() : CPolygon() {}
     explicit CTriangle(size_t number_points, CPoint *points)
@@ -222,13 +237,13 @@ class CTriangle : CPolygon
         : CPolygon(other) {}
     CTriangle &operator=(const CTriangle &other)
     {
-        CPolyline::operator=(other);
+        CPolygon::operator=(other);
         return *this;
     }
     ~CTriangle() {}
 };
 
-class CTrapezoid : CPolygon
+class CTrapezoid : public CPolygon
 {
     explicit CTrapezoid() : CPolygon() {}
     explicit CTrapezoid(size_t number_points, CPoint *points)
@@ -265,7 +280,7 @@ class CTrapezoid : CPolygon
         : CPolygon(other) {}
     CTrapezoid &operator=(const CTrapezoid &other)
     {
-        CPolyline::operator=(other);
+        CPolygon::operator=(other);
         return *this;
     }
     ~CTrapezoid() {}
@@ -274,8 +289,8 @@ class CTrapezoid : CPolygon
 int main()
 {
     double a = 1.6565695, b = 2.56;
-    std::cout << a/b << std::endl;
+    std::cout << a / b << std::endl;
     CPoint p1(1, 2);
-    std::cout << p1.radius() << std::endl;
+    std::cout << p1.Radius() << std::endl;
     return 0;
 }

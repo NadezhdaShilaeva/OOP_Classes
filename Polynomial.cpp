@@ -13,7 +13,7 @@ public:
     explicit CPolynomial(size_t degree, double *coeff)
     {
         degree_ = 0;
-        for (int i = 0; i <= degree; ++i)
+        for (size_t i = 0; i <= degree; ++i)
         {
             if (coeff[i] != 0)
             {
@@ -50,7 +50,7 @@ public:
         {
             return true;
         }
-        for (int i = 0; i <= degree_; ++i)
+        for (size_t i = 0; i <= degree_; ++i)
         {
             if (std::fabs(coeff_[i] - right.coeff_[i]) > 0.000001)
             {
@@ -67,7 +67,7 @@ public:
     {
         size_t degree = std::max(degree_, right.degree_);
         double *coeff = new double[degree + 1];
-        for (int i = 0; i <= degree; ++i)
+        for (size_t i = 0; i <= degree; ++i)
         {
             if (i <= std::min(degree_, right.degree_))
             {
@@ -86,7 +86,7 @@ public:
     {
         size_t degree = std::max(degree_, right.degree_);
         double *coeff = new double[degree + 1];
-        for (int i = 0; i <= degree; ++i)
+        for (size_t i = 0; i <= degree; ++i)
         {
             if (i <= std::min(degree_, right.degree_))
             {
@@ -104,7 +104,7 @@ public:
     CPolynomial operator-() const
     {
         CPolynomial result{*this};
-        for (int i = 0; i <= degree_; ++i)
+        for (size_t i = 0; i <= degree_; ++i)
         {
             result.coeff_[i] = -coeff_[i];
         }
@@ -126,7 +126,7 @@ public:
     {
         size_t degree = degree_;
         double *coeff = new double[degree + 1];
-        for (int i = 0; i <= degree; ++i)
+        for (size_t i = 0; i <= degree; ++i)
         {
             coeff[i] = coeff_[i] * right;
         }
@@ -142,13 +142,13 @@ public:
     {
         size_t degree = degree_ + right.degree_;
         double *coeff = new double[degree + 1];
-        for (int i = 0; i <= degree; ++i)
+        for (size_t i = 0; i <= degree; ++i)
         {
             coeff[i] = 0;
         }
-        for (int i = 0; i <= degree_; ++i)
+        for (size_t i = 0; i <= degree_; ++i)
         {
-            for (int j = 0; j <= right.degree_; ++j)
+            for (size_t j = 0; j <= right.degree_; ++j)
             {
                 coeff[i + j] += coeff_[i] * right.coeff_[j];
             }
@@ -165,7 +165,7 @@ public:
             return result;
         }
         CPolynomial result{*this};
-        for (int i = 0; i <= result.degree_; ++i)
+        for (size_t i = 0; i <= result.degree_; ++i)
         {
             result.coeff_[i] /= right;
         }
@@ -208,7 +208,7 @@ private:
 std::ostream &operator<<(std::ostream &stream, const CPolynomial &polynomial)
 {
     stream << polynomial.coeff_[polynomial.degree_] << "x^" << polynomial.degree_;
-    for (int i = polynomial.degree_ - 1; i >= 0; --i)
+    for (size_t i = polynomial.degree_ - 1; i >= 0; --i)
     {
         if (polynomial.coeff_[i] > 0)
         {
@@ -233,7 +233,7 @@ CPolynomial &operator>>(std::istream &stream, CPolynomial &polynomial)
     stream >> degree;
     double *coeff = new double[degree + 1];
     coeff[degree] = coeff1;
-    for (int i = 0; i < degree; ++i)
+    for (size_t i = 0; i < degree; ++i)
     {
         coeff[i] = 0;
     }
@@ -268,11 +268,11 @@ int main()
     std::cin >> poly_left;
     std::cout << "poly_right: ";
     std::cin >> poly_right;
-    if(poly_left == poly_right)
+    if (poly_left == poly_right)
     {
         std::cout << "poly_left == poly_right" << std::endl;
     }
-    if(poly_left != poly_right)
+    if (poly_left != poly_right)
     {
         std::cout << "poly_left != poly_right" << std::endl;
     }
@@ -293,7 +293,7 @@ int main()
     poly_left *= poly_right;
     std::cout << "poly_left * poly_right = " << poly_left << std::endl;
     std::cout << "poly_left degrees: ";
-    for (int i = 0; i <= (poly_left).Degree(); ++i)
+    for (size_t i = 0; i <= (poly_left).Degree(); ++i)
     {
         std::cout << poly_left[i] << ' ';
     }
