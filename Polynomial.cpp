@@ -198,7 +198,7 @@ public:
         return degree_;
     }
     friend std::ostream &operator<<(std::ostream &stream, const CPolynomial &polynomial);
-    friend CPolynomial &operator>>(std::istream &stream, CPolynomial &polynomial);
+    friend std::istream &operator>>(std::istream &stream, CPolynomial &polynomial);
 
 private:
     size_t degree_;
@@ -221,7 +221,7 @@ std::ostream &operator<<(std::ostream &stream, const CPolynomial &polynomial)
     }
     return stream;
 }
-CPolynomial &operator>>(std::istream &stream, CPolynomial &polynomial)
+std::istream &operator>>(std::istream &stream, CPolynomial &polynomial)
 {
     double coeff1;
     size_t degree1;
@@ -256,7 +256,7 @@ CPolynomial &operator>>(std::istream &stream, CPolynomial &polynomial)
     }
     polynomial = CPolynomial{degree, coeff};
     delete[] coeff;
-    return polynomial;
+    return stream;
 }
 
 int main()

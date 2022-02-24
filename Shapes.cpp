@@ -38,6 +38,11 @@ private:
     double y_;
 };
 
+double Distance(CPoint p1, CPoint p2)
+{
+    return std::sqrt(std::pow(p1.X() - p2.X(), 2) + std::pow(p1.Y() - p2.Y(), 2));
+}
+
 class CPolyline
 {
 public:
@@ -82,7 +87,7 @@ public:
         double length = 0;
         for (size_t i = 1; i < number_points_; ++i)
         {
-            length += sqrt(pow((points_[i - 1].X() - points_[i].X()), 2) + (pow((points_[i - 1].Y() - points_[i].Y()), 2)));
+            length += Distance(points_[i - 1], points_[i]);
         }
         return length;
     }
@@ -114,13 +119,9 @@ public:
         double length_ = 0;
         for (size_t i = 1; i < number_points; ++i)
         {
-            CPoint p = this->Point(i);
-            CPoint p_last = this->Point(i - 1);
-            length_ += std::sqrt(std::pow(p_last.X() - p.X(), 2) + std::pow(p_last.Y() - p.Y(), 2));
+            length_ += Distance(this->Point(i), this->Point(i - 1));
         }
-        CPoint p = this->Point(0);
-        CPoint p_last = this->Point(number_points - 1);
-        length_ += std::sqrt(std::pow(p_last.X() - p.X(), 2) + std::pow(p_last.Y() - p.Y(), 2));
+        length_ += Distance(this->Point(0), this->Point(number_points - 1));
         return length_;
     }
 };
@@ -180,10 +181,10 @@ class CRegularPolygon : public CPolygon
         if (number_points != 0)
         {
             bool is_regular = true;
-            side_ = std::sqrt(std::pow(points[number_points - 1].X() - points[0].X(), 2) + std::pow(points[number_points - 1].Y() - points[0].Y(), 2));
-            for (int i = 1; i < number_points; ++i)
+            side_ = Distance(points[number_points - 1], points[0]);
+            for (size_t i = 1; i < number_points; ++i)
             {
-                double dist = std::sqrt(std::pow(points[i - 1].X() - points[i].X(), 2) + std::pow(points[i - 1].Y() - points[i].Y(), 2));
+                double dist = Distance(points[i - 1], points[i]);
                 if (dist != side_)
                 {
                     is_regular = false;
@@ -191,7 +192,7 @@ class CRegularPolygon : public CPolygon
                 }
             }
             if (!is_regular)
-                std::cerr << "Your polygon is not regular!";
+                std::cerr << "This polygon is not regular!";
         }
     }
     CRegularPolygon(const CRegularPolygon &other)
@@ -232,6 +233,14 @@ class CTriangle : public CPolygon
         {
             std::cerr << "It is not a triangle!";
         }
+    }
+    explicit CTriangle(CPoint point1, CPoint point2, CPoint point3)
+    {
+        CPoint *points = new CPoint[3];
+        points[0] = point1;
+        points[1] = point2;
+        points[2] = point3;
+        CPolygon(3, points);
     }
     CTriangle(const CTriangle &other)
         : CPolygon(other) {}
@@ -275,6 +284,15 @@ class CTrapezoid : public CPolygon
         {
             std::cerr << "It is not a triangle!";
         }
+    }
+    explicit CTrapezoid(CPoint point1, CPoint point2, CPoint point3, CPoint point4)
+    {
+        CPoint *points = new CPoint[4];
+        points[0] = point1;
+        points[1] = point2;
+        points[2] = point3;
+        points[3] = point4;
+        CTrapezoid(4, points);
     }
     CTrapezoid(const CTrapezoid &other)
         : CPolygon(other) {}
