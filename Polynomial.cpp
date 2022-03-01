@@ -208,7 +208,7 @@ private:
 std::ostream &operator<<(std::ostream &stream, const CPolynomial &polynomial)
 {
     stream << polynomial.coeff_[polynomial.degree_] << "x^" << polynomial.degree_;
-    for (size_t i = polynomial.degree_ - 1; i >= 0; --i)
+    for (int i = polynomial.degree_ - 1; i >= 0; --i)
     {
         if (polynomial.coeff_[i] > 0)
         {

@@ -355,7 +355,7 @@ public:
         }
         if (number_points != 4 || !is_parallel || !not_parallel)
         {
-            std::cerr << "It is not a triangle!" << std::endl;
+            std::cerr << "It is not a trapezoid!" << std::endl;
         }
     }
     CTrapezoid(const CTrapezoid &other)
